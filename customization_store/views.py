@@ -71,6 +71,8 @@ class CustomizationHomeView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 class UploadHeaderLogoView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'uploadheaderlogo.view_uploadheaderlogo'
+
     def post(self, request, *args, **kwargs):
         logo_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
         header_logo_path = os.path.join(logo_dir, 'header_logo.png')
@@ -99,6 +101,8 @@ class UploadHeaderLogoView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return redirect('customization_home')
 
 class UploadNavbarLogoView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'uploadnavbarlogo.view_uploadnavbarlogo'
+
     def post(self, request, *args, **kwargs):
         logo_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
         navbar_logo_path = os.path.join(logo_dir, 'navbar_logo.png')
@@ -128,6 +132,8 @@ class UploadNavbarLogoView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return redirect('customization_home')
 
 class UploadFaviconView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'uploadfavicon.view_uploadfavicon'
+
     def post(self, request, *args, **kwargs):
         logo_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
         favicon_path = os.path.join(logo_dir, 'favicon.ico')
@@ -160,6 +166,8 @@ class UploadFaviconView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return redirect('customization_home')
 
 class UploadProductImageDefaultView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'uploadproductimagedefaultlogo.view_uploadproductimagedefaultlogo'
+
     def post(self, request, *args, **kwargs):
         image_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
         product_image_path = os.path.join(image_dir, 'product_default.png')
@@ -188,6 +196,8 @@ class UploadProductImageDefaultView(LoginRequiredMixin, PermissionRequiredMixin,
         return redirect('customization_home')
 
 class UploadCustomerImageDefaultView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'uploadcustomerimagedefaultlogo.view_uploadcustomerimagedefaultlogo'
+
     def post(self, request, *args, **kwargs):
         image_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
         customer_image_path = os.path.join(image_dir, 'customer_default.png')
@@ -216,6 +226,8 @@ class UploadCustomerImageDefaultView(LoginRequiredMixin, PermissionRequiredMixin
         return redirect('customization_home')
 
 class UploadSupplierImageDefaultView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'uploadsupplierimagedefaultlogo.view_uploadsupplierimagedefaultlogo'
+
     def post(self, request, *args, **kwargs):
         image_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
         supplier_image_path = os.path.join(image_dir, 'supplier_default.png')
