@@ -1,0 +1,101 @@
+<nav class="navbar navbar-expand-lg d-none d-lg-block" id="navbarMain" style="background-color: rgb(3, 90, 0);">
+    <div class="container-fluid justify-content-center">
+        <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
+            <span class="navbar-toggler-icon"></span>
+        </button> -->
+        
+        <div class="d-flex justify-content-center" id="navbarNavDropdown">
+            <!-- Logomarca navbar -->
+            <a class="navbar-brand" href="{% url 'store_home' %}">
+                <img src="{{ navbar_logo_url }}" alt="Sacolão" class="navbar-logo-small" style="max-height: 30px;">
+            </a>
+            <ul class="navbar-nav mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a href="{% url 'store_product_list' %}" class="nav-link {% if not selected_category %}active{% endif %}">Todos os Produtos</a>
+                </li>
+                {% for category in categories %}
+                <li class="nav-item dropdown">
+                    <a href="{% url 'store_products_by_category' category.name %}" class="nav-link dropdown-toggle {% if selected_category and selected_category.name == category.name %}active{% endif %}" id="navbarDropdown{{ category.id }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ category.name }}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown{{ category.id }}">
+                        {% for subcategory in category.subcategories.all %}
+                        <li><a class="dropdown-item {% if selected_subcategory and selected_subcategory.name == subcategory.name %}active{% endif %}" href="{% url 'store_products_by_subcategory' category.name subcategory.name %}">{{ subcategory.name }}</a></li>
+                        {% endfor %}
+                        <li><a class="dropdown-item" href="{% url 'store_products_by_category' category.name %}">Mostrar tudo</a></li>
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% block extra_styles %}
+<style>
+    .fixed-navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1030;
+    }
+
+    .navbar-logo-small {
+        max-height: 100px;
+        transition: opacity 0.3s ease-in-out;
+        opacity: 0;
+    }
+
+    .fixed-navbar .navbar-logo-small {
+        opacity: 1;
+    }
+
+    .navbar-nav .nav-link {
+        color: #ffffff;
+        font-size: 1.1em;
+    }
+
+    .navbar-nav .nav-link:hover, .navbar-nav .nav-link:focus {
+        color: rgb(242, 255, 0);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .navbar-nav .nav-link.active {
+        color: rgb(9, 255, 0);
+    }
+
+    .navbar-nav .dropdown-menu {
+        background-color: rgb(3, 90, 0);
+        color: #ffffff;
+        font-size: 1.1em;
+    }
+
+    .navbar-nav .dropdown-item {
+        color: #ffffff;
+    }
+
+    .navbar-nav .dropdown-item:hover, .navbar-nav .dropdown-item:focus {
+        color: rgb(3, 90, 0);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .navbar-nav .dropdown-item.active {
+        color: rgb(3, 90, 0);
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.addEventListener('scroll', function() {
+        var header = document.querySelector('nav.navbar-expand-lg[style]');
+        var navbar = document.querySelector('#navbarMain');
+
+        if (window.scrollY >= header.offsetHeight) {
+            navbar.classList.add('fixed-navbar');
+        } else {
+            navbar.classList.remove('fixed-navbar');
+        }
+    });
+</script>
+{% endblock %}

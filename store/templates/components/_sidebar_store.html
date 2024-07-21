@@ -1,0 +1,156 @@
+<!-- Botão para abrir/fechar o sidebar -->
+<button id="sidebar-toggle" class="btn btn-sidebar-toggle d-lg-none" onclick="toggleSidebar()">&#9776;</button>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar d-lg-none">
+    <div class="list-group">
+        <!-- Link todos os produtos -->
+        <a href="{% url 'store_product_list' %}" class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}">Todos os Produtos</a>
+        <!-- Links para categorias e subcategorias -->
+        {% for category in categories %}
+        <div class="list-group-item">
+            <button class="btn btn-sidebar w-100 text-start {% if selected_category and selected_category.name == category.name %}active{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCategory{{ category.id }}" aria-expanded="false" aria-controls="collapseCategory{{ category.id }}">
+                {{ category.name }}
+            </button>
+            <div class="collapse {% if selected_category and selected_category.name == category.name %}show{% endif %}" id="collapseCategory{{ category.id }}">
+                <div class="list-group">
+                    {% for subcategory in category.subcategories.all %}
+                    <a href="{% url 'store_products_by_subcategory' category.name subcategory.name %}" class="list-group-item list-group-item-action {% if selected_subcategory and selected_subcategory.name == subcategory.name %}active{% endif %}">
+                        {{ subcategory.name }}
+                    </a>
+                    {% endfor %}
+                    <a href="{% url 'store_products_by_category' category.name %}" class="list-group-item list-group-item-action">Mostrar tudo</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Botão close do sidebar -->
+<button id="sidebar-close" class="btn btn-sidebar-close d-lg-none btn-hidden" onclick="toggleSidebar()">&#10005;</button>
+
+<div id="sidebar-overlay" class="sidebar-overlay d-lg-none"></div>
+
+{% block extra_styles %}
+<style>
+    .sidebar {
+        height: 100%;
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: -250px;
+        background-color: #f8f9fa;
+        overflow-x: hidden;
+        transition: 0.3s;
+        z-index: 1000;
+        padding-top: 10px;
+    }
+
+    .btn-sidebar-toggle,
+    .btn-sidebar-close {
+        font-size: 24px;
+        position: fixed;
+        top: 10px;
+        background: none;
+        border: none;
+        z-index: 1001;
+    }
+
+    .btn-sidebar-toggle {
+        left: 10px;
+    }
+
+    .btn-sidebar-close {
+        left: 260px;
+    }
+
+    .btn-sidebar-toggle:focus,
+    .btn-sidebar-close:focus {
+        outline: none;
+    }
+
+    .btn-hidden {
+        display: none;
+    }
+
+    .sidebar-open {
+        left: 0;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+
+    .sidebar-overlay-open {
+        display: block;
+    }
+
+    @media (min-width: 1000px) {
+        .sidebar,
+        .btn-sidebar-toggle,
+        .btn-sidebar-close,
+        .sidebar-overlay {
+            display: none;
+        }
+    }
+
+    .list-group {
+        margin-top: 10px;
+    }
+
+    .btn-sidebar {
+        text-decoration: none;
+        color: #212529;
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .btn-sidebar:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .btn-sidebar:hover,
+    .btn-sidebar.active {
+        color: #0056b3;
+        background-color: #e9ecef;
+    }
+
+    .btn-sidebar:active {
+        color: #212529;
+        background-color: #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var toggleButton = document.getElementById('sidebar-toggle');
+        var closeButton = document.getElementById('sidebar-close');
+        var overlay = document.getElementById('sidebar-overlay');
+        var isOpen = sidebar.classList.toggle('sidebar-open');
+        
+        toggleButton.classList.toggle('btn-hidden', isOpen);
+        closeButton.classList.toggle('btn-hidden', !isOpen);
+        overlay.classList.toggle('sidebar-overlay-open', isOpen);
+    }
+
+    // Fechar o sidebar ao clicar fora dele
+    document.getElementById('sidebar-overlay').addEventListener('click', function() {
+        toggleSidebar();
+    });
+</script>
+{% endblock %}

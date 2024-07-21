@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if form.instance.pk %}Editar Produto: {{ form.instance.name }}
+{% else %}Novo Produto{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row mb-3">
+  <div class="col">
+    <h2>{% if form.instance.pk %}Editar Produto: {{ form.instance.name }}{% else %}Novo Produto{% endif %}</h2>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <a href="{% url 'product_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const categorySelect = document.getElementById('id_category');
+      const subcategorySelect = document.getElementById('id_subcategory');
+      const initialSubcategory = "{{ form.instance.subcategory.id }}";
+  
+      categorySelect.addEventListener('change', function() {
+          const categoryId = this.value;
+          fetch(`/subcategories/${categoryId}/`)
+              .then(response => response.json())
+              .then(data => {
+                  subcategorySelect.innerHTML = ''; // Limpa o select subcategoria
+                  subcategorySelect.appendChild(new Option('---------', ''));
+  
+                  data.forEach(subcategory => {
+                      const option = new Option(subcategory.name, subcategory.id);
+                      if (subcategory.id == initialSubcategory) {
+                          option.selected = true;  // Retornando a subcategoria do banco
+                      }
+                      subcategorySelect.appendChild(option);
+                  });
+              })
+              .catch(error => console.error('Erro ao carregar subcategorias:', error));
+      });
+  
+      // Carrega as subcategorias se alterar a categoria
+      if (categorySelect.value) {
+          categorySelect.dispatchEvent(new Event('change'));
+      }
+  });
+  </script>
+
+{% endblock %}
