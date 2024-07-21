@@ -9,6 +9,8 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            if not user.is_superuser and not user.is_staff:
+                return redirect('/')
             return redirect('dashboard')
         else:
             login_form = AuthenticationForm()
