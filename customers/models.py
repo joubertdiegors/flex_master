@@ -44,10 +44,10 @@ class CustomerState(models.Model):
         return self.name
 
 class Customer(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='customer_profile', null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='customer_profile', null=True, blank=True)
     name = models.CharField(max_length=255)
     company_name = models.CharField(max_length=255, blank=True, null=True)
-    customer_type = models.ForeignKey(CustomerType, on_delete=models.PROTECT, default=0)
+    customer_type = models.ForeignKey(CustomerType, on_delete=models.PROTECT, blank=True, null=True)
     national_number = models.CharField(max_length=50, blank=True, null=True)
     tva_number = models.CharField(max_length=50, blank=True, null=True)
     contact_person_name = models.CharField(max_length=255, blank=True, null=True)
@@ -61,10 +61,10 @@ class Customer(models.Model):
     address = models.TextField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='customers/images/', blank=True, null=True)
-    status = models.ForeignKey(CustomerState, on_delete=models.PROTECT, default=0)
+    status = models.ForeignKey(CustomerState, on_delete=models.PROTECT, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='customer_created_user', on_delete=models.PROTECT)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='customer_created_user', on_delete=models.PROTECT, default=1)
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='customer_updated_user', null=True, blank=True, on_delete=models.PROTECT)
 
     class Meta:
@@ -76,6 +76,7 @@ class Customer(models.Model):
         return self.name
     
     def save(self, *args, **kwargs):
+        print("Dados do Customer antes de salvar:", self.__dict__)
         # Normaliza o nome do país
         normalized_name = unidecode(self.name).lower().replace(' ', '_')
         image_filename = f"{normalized_name}_photo.webp"
