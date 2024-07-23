@@ -102,3 +102,4 @@ class CustomerForm(forms.ModelForm):
             'image': 'Imagem',
             'status': 'Estado',
         }
+
