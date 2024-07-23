@@ -44,17 +44,26 @@ class CustomerState(models.Model):
         return self.name
 
 class Customer(models.Model):
+    # Dados automáticos / ao definir o customer_type os inputs serão ajustados para corresponder aos dados que devem ser preenchidos.
     user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='customer_profile', null=True, blank=True)
-    name = models.CharField(max_length=255)
-    company_name = models.CharField(max_length=255, blank=True, null=True)
     customer_type = models.ForeignKey(CustomerType, on_delete=models.PROTECT, blank=True, null=True)
-    national_number = models.CharField(max_length=50, blank=True, null=True)
+
+    # Cadastro de pessoa física
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    birth_date = models.DateField(blank=True, null=True)  # Campo de data de nascimento
+
+    # Cadastro de empresa
+    company_name = models.CharField(max_length=255, blank=True, null=True)
     tva_number = models.CharField(max_length=50, blank=True, null=True)
     contact_person_name = models.CharField(max_length=255, blank=True, null=True)
     contact_person_phone = models.CharField(max_length=20, blank=True, null=True)
     contact_person_email = models.EmailField(blank=True, null=True)
-    general_email = models.EmailField(blank=True, null=True)
-    financial_email = models.EmailField(blank=True, null=True)
+    other_email = models.EmailField(blank=True, null=True)
+
+    # Outros campos
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
@@ -70,15 +79,15 @@ class Customer(models.Model):
     class Meta:
         verbose_name = "Customer"
         verbose_name_plural = "Customers"
-        ordering = ['name']
+        ordering = ['first_name']
 
     def __str__(self):
-        return self.name
+        return f"{self.first_name} {self.last_name}"
     
     def save(self, *args, **kwargs):
         print("Dados do Customer antes de salvar:", self.__dict__)
         # Normaliza o nome do país
-        normalized_name = unidecode(self.name).lower().replace(' ', '_')
+        normalized_name = unidecode(self.first_name).lower().replace(' ', '_')
         image_filename = f"{normalized_name}_photo.webp"
 
         if self.pk:
@@ -86,7 +95,7 @@ class Customer(models.Model):
                 this = Customer.objects.get(pk=self.pk)
 
                 # Verifica se o campo name foi alterado
-                if this.name != self.name:
+                if this.first_name != self.first_name:
                     # Caminho antigo da imagem
                     old_image_path = this.image.path if this.image else None
 

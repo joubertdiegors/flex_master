@@ -40,7 +40,6 @@ class StoreHomeView(View):
             'is_not_list_page': True,
             'breadcrumb_off': True,
             'custom_content': load_custom_content(),
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
     
@@ -69,7 +68,6 @@ class StoreProductListView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -100,7 +98,6 @@ class ProductsByCategoryView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -133,7 +130,6 @@ class ProductsBySubcategoryView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -164,7 +160,6 @@ class ProductsByBrandView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -195,7 +190,6 @@ class ProductsByCountryView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -281,8 +275,7 @@ class StoreProductBestSellerView(View):
             'brands': brands,
             'countries': countries,
             'page_obj': page_obj,
-            'products_per_page': products_per_page,
-            **get_logo_urls(),  # Supondo que esta função retorna URLs de logos
+            'products_per_page': products_per_page,  # Supondo que esta função retorna URLs de logos
         }
         return render(request, self.template_name, context)
 
@@ -314,8 +307,7 @@ class StoreProductFreshListView(View):
             'brands': brands,
             'countries': countries,
             'page_obj': page_obj,
-            'products_per_page': products_per_page,
-            **get_logo_urls(),  # Supondo que esta função retorna URLs de logos
+            'products_per_page': products_per_page,  # Supondo que esta função retorna URLs de logos
         }
         return render(request, self.template_name, context)
 
@@ -346,7 +338,6 @@ class StoreProductPromotionsView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -382,35 +373,8 @@ class StoreProductDetailView(View):
             'ingredients': ingredients,
             'nutritional_infos': nutritional_info,
             'is_not_list_page': True,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
-
-def get_logo_urls():
-    logo_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
-    header_logo_url = None
-    navbar_logo_url = None
-    product_default_url = None
-    favicon_url = None
-
-    if os.path.exists(os.path.join(logo_dir, 'header_logo.png')):
-        header_logo_url = settings.MEDIA_URL + 'store/logo/header_logo.png'
-
-    if os.path.exists(os.path.join(logo_dir, 'navbar_logo.png')):
-        navbar_logo_url = settings.MEDIA_URL + 'store/logo/navbar_logo.png'
-
-    if os.path.exists(os.path.join(logo_dir, 'product_default.png')):
-        product_default_url = settings.MEDIA_URL + 'store/logo/product_default.png'
-
-    if os.path.exists(os.path.join(logo_dir, 'favicon.ico')):
-        favicon_url = settings.MEDIA_URL + 'store/logo/favicon.ico'
-
-    return {
-        'header_logo_url': header_logo_url,
-        'navbar_logo_url': navbar_logo_url,
-        'product_default_url': product_default_url,
-        'favicon_url': favicon_url,
-    }
 
 class AboutUsView(View):
     template_name = 'store_about_us.html'
@@ -424,7 +388,6 @@ class AboutUsView(View):
             'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -440,7 +403,6 @@ class DeliveryInfoView(View):
             'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
 
@@ -456,10 +418,35 @@ class PrivacyPolicyView(View):
             'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
-            **get_logo_urls(),
         }
         return render(request, self.template_name, context)
     
 def load_custom_content():
     with open(os.path.join(settings.BASE_DIR, 'customization_store/templates/content.json'), 'r', encoding='utf-8') as f:
         return json.load(f)
+
+# def get_logo_urls():
+#     logo_dir = os.path.join(settings.MEDIA_ROOT, 'store', 'logo')
+#     header_logo_url = None
+#     navbar_logo_url = None
+#     product_default_url = None
+#     favicon_url = None
+
+#     if os.path.exists(os.path.join(logo_dir, 'header_logo.png')):
+#         header_logo_url = settings.MEDIA_URL + 'store/logo/header_logo.png'
+
+#     if os.path.exists(os.path.join(logo_dir, 'navbar_logo.png')):
+#         navbar_logo_url = settings.MEDIA_URL + 'store/logo/navbar_logo.png'
+
+#     if os.path.exists(os.path.join(logo_dir, 'product_default.png')):
+#         product_default_url = settings.MEDIA_URL + 'store/logo/product_default.png'
+
+#     if os.path.exists(os.path.join(logo_dir, 'favicon.ico')):
+#         favicon_url = settings.MEDIA_URL + 'store/logo/favicon.ico'
+
+#     return {
+#         'header_logo_url': header_logo_url,
+#         'navbar_logo_url': navbar_logo_url,
+#         'product_default_url': product_default_url,
+#         'favicon_url': favicon_url,
+#     }

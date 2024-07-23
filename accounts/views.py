@@ -1,9 +1,12 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 
-from .forms import UserRegistrationForm, CustomerRegistrationForm
+from .forms import UserBasicRegistrationForm, CustomerBasicRegistrationForm, CustomerCompleteRegistrationForm
+from .mixins.mixins import CustomerAccessMixin
 from customers.models import Customer, CustomerState, CustomerType
+from products.models import Category, Subcategory
 
 def login_view(request):
     if request.method == "POST":
@@ -23,41 +26,97 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('/')
 
-def register(request):
-    if request.method == 'POST':
-        print(request.POST)
-        user_form = UserRegistrationForm(request.POST)
-        customer_form = CustomerRegistrationForm(request.POST, request.FILES)
+class RegisterBasicView(View):
+    template_name = 'register_basic.html'
+
+    def get(self, request, *args, **kwargs):
+        user_form = UserBasicRegistrationForm()
+        customer_form = CustomerBasicRegistrationForm()
         
+        categories = Category.objects.all()
+        subcategories = Subcategory.objects.all()
+
+        context = {
+            'user_form': user_form,
+            'customer_form': customer_form,
+            'categories': categories,
+            'subcategories': subcategories,
+            'is_not_list_page': True,
+            'breadcrumb_off': True,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        user_form = UserBasicRegistrationForm(request.POST)
+        customer_form = CustomerBasicRegistrationForm(request.POST)
+
         if user_form.is_valid() and customer_form.is_valid():
             new_user = user_form.save(commit=False)
+            new_user.username = user_form.cleaned_data['email']
             new_user.set_password(user_form.cleaned_data['password'])
             new_user.save()
 
             customer = customer_form.save(commit=False)
             customer.user = new_user
-            customer.name = new_user.first_name
-            customer.contact_person_email = new_user.email
+            customer.first_name = new_user.first_name
+            customer.last_name = new_user.last_name
+            customer.email = new_user.email
+            customer.created_by = new_user
 
-            # Definir valores padrão para campos obrigatórios
-            customer.created_by = new_user  # Assumindo que o próprio usuário é o criador
+            customer.save()
 
-            print("Customer antes de salvar:", customer)
-            try:
-                customer.save()
-                print("Customer salvo com sucesso")
-            except Exception as e:
-                print("Erro ao salvar Customer:", e)
-            
-            return redirect('login')
-        else:
-            print("Formulários inválidos")
-            print("Erros user_form:", user_form.errors)
-            print("Erros customer_form:", customer_form.errors)
-    else:
-        user_form = UserRegistrationForm()
-        customer_form = CustomerRegistrationForm()
+            return redirect('complete_registration', customer_id=customer.id)
 
-    return render(request, 'register.html', {'user_form': user_form, 'customer_form': customer_form})
+        categories = Category.objects.all()
+        subcategories = Subcategory.objects.all()
+
+        context = {
+            'user_form': user_form,
+            'customer_form': customer_form,
+            'categories': categories,
+            'subcategories': subcategories,
+            'is_not_list_page': True,
+            'breadcrumb_off': True,
+        }
+        return render(request, self.template_name, context)
+
+class CompleteRegistrationView(CustomerAccessMixin, View):
+    template_name = 'complete_registration.html'
+
+    def get(self, request, customer_id, *args, **kwargs):
+        customer = get_object_or_404(Customer, id=customer_id)
+        form = CustomerCompleteRegistrationForm(instance=customer)
+        
+        categories = Category.objects.all()
+        subcategories = Subcategory.objects.all()
+
+        context = {
+            'form': form,
+            'categories': categories,
+            'subcategories': subcategories,
+            'is_not_list_page': True,
+            'breadcrumb_off': True,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, customer_id, *args, **kwargs):
+        customer = get_object_or_404(Customer, id=customer_id)
+        form = CustomerCompleteRegistrationForm(request.POST, request.FILES, instance=customer)
+
+        if form.is_valid():
+            form.save()
+            return redirect('/')  # Redirecionar para a página de perfil ou login
+
+        categories = Category.objects.all()
+        subcategories = Subcategory.objects.all()
+
+        context = {
+            'form': form,
+            'categories': categories,
+            'subcategories': subcategories,
+            'is_not_list_page': True,
+            'breadcrumb_off': True,
+        }
+        return render(request, self.template_name, context)
