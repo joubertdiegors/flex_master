@@ -67,6 +67,9 @@ class RegisterBasicView(View):
 
             customer.save()
 
+            # Logar o usuário automaticamente
+            login(request, new_user)
+
             return redirect('complete_registration', customer_id=customer.id)
 
         categories = Category.objects.all()
