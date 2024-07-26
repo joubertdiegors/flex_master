@@ -31,6 +31,13 @@
                             </a>
                         {% endif %}
                     </li>
+                    <li class="cart-icon-container">
+                        <a href="{% url 'cart_detail' %}" class="d-flex flex-column align-items-center text-decoration-none text-dark position-relative">
+                            <i class="bi bi-cart" style="font-size: 3em;"></i>
+                            <span class="cart-quantity-badge" id="cart-total-items">{{ cart.items.count|default:0 }}</span>
+                            <span class="cart-total-cost" id="cart-total-cost">€ {{ cart.get_total_cost|default:"0.00" }}</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -38,3 +45,37 @@
 </nav>
 
 {% include 'components/_modal_login.html' %}
+
+{% block extra_styles %}
+<style>
+    /* Container para o ícone do carrinho e o badge */
+.cart-icon-container {
+    position: relative;
+    display: inline-block; /* Garantir que o contêiner ajuste seu tamanho ao ícone */
+}
+
+/* Estilo para o ícone do carrinho */
+.cart-icon-container .bi-cart {
+    font-size: 3em; /* Ajuste conforme necessário */
+}
+
+/* Estilo para o badge de quantidade */
+.cart-quantity-badge {
+    position: absolute;
+    top: 22%; /* Posiciona verticalmente no meio do contêiner */
+    left: 30%; /* Posiciona horizontalmente no meio do contêiner */
+    color: white; /* Cor do texto */
+    padding: 0.3em 0.6em; /* Espaçamento interno do badge */
+    font-size: 0.8em; /* Ajuste o tamanho da fonte conforme necessário */
+    font-weight: bold; /* Deixar o texto em negrito */
+    text-align: center; /* Centraliza o texto dentro do badge */
+}
+
+/* Estilo para o custo total */
+.cart-total-cost {
+    display: block;
+    font-size: 1em; /* Ajuste o tamanho da fonte conforme necessário */
+    margin-top: 0.5em;
+}
+</style>
+{% endblock %}

@@ -13,8 +13,13 @@ def login_view(request):
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
+            # Usa a sessão antiga para a transferência do carrinho de compras do anônimo para o usuário que for logado
+            old_session_key = request.session.session_key
             login(request, user)
+            request.session['old_session_key'] = old_session_key
+            
             if not user.is_superuser and not user.is_staff:
                 return redirect('/')
             return redirect('dashboard')

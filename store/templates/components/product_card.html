@@ -1,57 +1,59 @@
-<div class="card product-card">
-  <a href="{% url 'store_product_detail' product.pk product.name|slugify %}" class="link-unstyled text-decoration-none text-dark">
-    <div class="position-relative ratio ratio-1x1 fixed-height-img mx-auto d-block mt-3">
-      {% if product.image %}
-      <img src="{{ product.image.url }}" class="img-fluid img-center" alt="{{ product.name }}">
-      {% else %}
-      <img src="{{ product_default_url }}" class="img-fluid img-center" alt="{{ product.name }}">
-      {% endif %}
-
-      <div class="alert-container">
-        {% if product.promotion_product %}
-        <div class="promotion-alert" role="alert">
-          Promoção
-        </div>
-        {% endif %}
-
-        {% if product.best_seller_product %}
-        <div class="best-seller-alert" role="alert">
-          Popular
-        </div>
-        {% endif %}
-
-        {% if product.fresh_product_product %}
-        <div class="fresh-product-alert" role="alert">
-          Novo
-        </div>
-        {% endif %}
-      </div>
-    </div>
-    <div class="card-body">
-      <h5 class="card-title text-center product-name mb-2 mb-sm-3">
-        {{ product.name }} {% if product.brand %} {{ product.brand }} {% endif %} {% if product.volume %} {{ product.volume }} {{ product.volume_unit.symbol }} {% endif %}
-      </h5>
-  </a>
-      <div class="text-center mb-3">
-        {% if product.promotion_product.active %}
-        <p class="card-text">
-          <span style="text-decoration: line-through; color: red;">€ {{ product.selling_price }}</span>
-          <span>€ {{ product.promotion_product.promotion_price }}</span>
-        </p>
+<form class="d-flex flex-column">
+  <div class="card product-card">
+    <a href="{% url 'store_product_detail' product.pk product.name|slugify %}" class="link-unstyled text-decoration-none text-dark">
+      <div class="position-relative ratio ratio-1x1 fixed-height-img mx-auto d-block mt-3">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" class="img-fluid img-center" alt="{{ product.name }}">
         {% else %}
-        <p class="card-text">€ {{ product.selling_price }}</p>
+        <img src="{{ product_default_url }}" class="img-fluid img-center" alt="{{ product.name }}">
         {% endif %}
+
+        <div class="alert-container">
+          {% if product.promotion_product %}
+          <div class="promotion-alert" role="alert">
+            Promoção
+          </div>
+          {% endif %}
+
+          {% if product.best_seller_product %}
+          <div class="best-seller-alert" role="alert">
+            Popular
+          </div>
+          {% endif %}
+
+          {% if product.fresh_product_product %}
+          <div class="fresh-product-alert" role="alert">
+            Novo
+          </div>
+          {% endif %}
+        </div>
       </div>
-    </div>
-  <div class="d-flex justify-content-center align-items-center mb-1 d-grid">
-    <button class="btn btn-warning btn-quantity-left" type="button" onclick="changeQuantity('{{ product.id }}', 'decrement')">-</button>
-    <input type="number" id="quantity_{{ product.id }}" class="form-control form-control-sm mx-0 text-center quantity-input no-spinners" value="1" min="1" max="">
-    <button class="btn btn-warning btn-quantity-right" type="button" onclick="changeQuantity('{{ product.id }}', 'increment')">+</button>
+      <div class="card-body">
+        <h5 class="card-title text-center product-name mb-2 mb-sm-3">
+          {{ product.name }} {% if product.brand %} {{ product.brand }} {% endif %} {% if product.volume %} {{ product.volume }} {{ product.volume_unit.symbol }} {% endif %}
+        </h5>
+    </a>
+        <div class="text-center mb-3">
+          {% if product.promotion_product.active %}
+          <p class="card-text">
+            <span style="text-decoration: line-through; color: red;">€ {{ product.selling_price }}</span>
+            <span>€ {{ product.promotion_product.promotion_price }}</span>
+          </p>
+          {% else %}
+          <p class="card-text">€ {{ product.selling_price }}</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="d-flex justify-content-center align-items-center mb-1 d-grid">
+        <button class="btn btn-warning btn-quantity-left" type="button" onclick="changeQuantity('{{ product.id }}', 'decrement')">-</button>
+        <input type="number" id="quantity_{{ product.id }}" class="form-control form-control-sm mx-0 text-center quantity-input no-spinners" value="1" min="1" max="">
+        <button class="btn btn-warning btn-quantity-right" type="button" onclick="changeQuantity('{{ product.id }}', 'increment')">+</button>
+      </div>
+      <div class="d-grid gap-3">
+        <button class="btn btn-warning" type="button" onclick="addToCart('{{ product.id }}')">Adicionar</button>
+      </div>
   </div>
-  <div class="d-grid gap-3">
-    <button class="btn btn-warning">Adicionar</button>
-  </div>
-</div>
+</form>
 
 {% block extra_scripts %}
 <script>
@@ -65,6 +67,31 @@
     } else if (action === 'decrement' && value > 1) {
       input.value = value - 1;
     }
+  }
+
+  function addToCart(productId) {
+    var quantity = document.getElementById('quantity_' + productId).value;
+
+    $.ajax({
+      url: "{% url 'add_to_cart_ajax' %}",
+      type: "POST",
+      data: {
+        'product_id': productId,
+        'quantity': quantity,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+      },
+      success: function(response) {
+        if (response.cart_data) {
+          $('#cart-total-items').text(response.cart_data.total_items);
+          $('#cart-total-cost').text(response.cart_data.total_cost.toFixed(2));
+        } else {
+          console.error('Resposta AJAX inválida:', response);
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error("Ocorreu um erro: " + error);
+      }
+    });
   }
 
   function changeProductsPerPage() {

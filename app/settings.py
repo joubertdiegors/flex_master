@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-0z+dhzqc#ncj8md=5k+lht6poctc2rly22u2mea8)5q54ap+8p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['joubertdiegors.pythonanywhere.com', 'localhost', '127.0.0.1']
 
@@ -28,8 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'accounts',
-
     'branches',
+    'cart',
     'countries',
     'customers',
     'suppliers',
@@ -53,7 +53,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
     'app.middleware.AdminPermissionMiddleware',
+    'cart.middleware.TransferCartMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -69,7 +71,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
                 'app.context_processors.get_logo_urls',
+                'cart.context_processors.cart_context',
             ],
         },
     },
@@ -133,3 +137,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Mantém a sessão a cada requisição
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Configurações de sessão
+SESSION_COOKIE_AGE = 1209600  # 2 semanas
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False

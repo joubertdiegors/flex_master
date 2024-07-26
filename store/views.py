@@ -1,8 +1,8 @@
 import os
 import json
-from typing import Any, Dict
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from unidecode import unidecode
@@ -234,7 +234,6 @@ class SearchProductView(View):
                 'search_query': search_query,
                 'page_obj': page_obj,
                 'products_per_page': products_per_page,
-                **get_logo_urls(),
             }
         else:
             context = {
@@ -244,7 +243,6 @@ class SearchProductView(View):
                 'countries': countries,
                 'page_obj': page_obj,
                 'products_per_page': products_per_page,
-                **get_logo_urls(),
             }
 
         return render(request, self.template_name, context)

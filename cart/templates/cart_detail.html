@@ -1,0 +1,37 @@
+{% extends "base_store.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Seu Carrinho</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th>Total</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart.items.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.get_cost }}</td>
+                <td>
+                    <!-- Formulário de remoção -->
+                    <form action="{% url 'remove_from_cart' item.product.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Total: {{ cart.get_total_cost }}</h3>
+    <a href="#" class="btn btn-primary">Finalizar Compra</a>
+</div>
+{% endblock %}

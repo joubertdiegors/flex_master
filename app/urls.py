@@ -18,6 +18,7 @@ urlpatterns = [
     path('dashboard/', home, name='dashboard'),
 
     path('', include('branches.urls')),
+    path('', include('cart.urls')),
     path('', include('countries.urls')),
     path('', include('customers.urls')),
     path('', include('suppliers.urls')),
