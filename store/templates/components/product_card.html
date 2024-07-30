@@ -73,24 +73,28 @@
     var quantity = document.getElementById('quantity_' + productId).value;
 
     $.ajax({
-      url: "{% url 'add_to_cart_ajax' %}",
-      type: "POST",
-      data: {
-        'product_id': productId,
-        'quantity': quantity,
-        'csrfmiddlewaretoken': '{{ csrf_token }}'
-      },
-      success: function(response) {
-        if (response.cart_data) {
-          $('#cart-total-items').text(response.cart_data.total_items);
-          $('#cart-total-cost').text(response.cart_data.total_cost.toFixed(2));
-        } else {
-          console.error('Resposta AJAX inválida:', response);
+        url: "{% url 'add_to_cart_ajax' %}",
+        type: "POST",
+        data: {
+            'product_id': productId,
+            'quantity': quantity,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.cart_data) {
+                var totalItemsElement = document.getElementById('cart-total-items');
+                var totalCostElement = document.getElementById('cart-total-cost');
+
+                // Atualizar apenas o valor numérico dos itens no carrinho
+                totalItemsElement.textContent = response.cart_data.total_items;
+                totalCostElement.textContent = '€' + response.cart_data.total_cost.toFixed(2);
+            } else {
+                console.error('Resposta AJAX inválida:', response);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Ocorreu um erro: " + error);
         }
-      },
-      error: function(xhr, status, error) {
-        console.error("Ocorreu um erro: " + error);
-      }
     });
   }
 
