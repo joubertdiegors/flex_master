@@ -9,7 +9,7 @@ from unidecode import unidecode
 from django.views.generic import View, DetailView
 from products.models import Product, Brand, Ingredients, NutritionalInfo
 from promotions.models import Promotion
-from categories.models import Category, Subcategory
+from categories.models import Category
 from countries.models import Country
 from customization_store.models import Banner, HighlightedBrand, BestSellerProduct, FreshProducts
 
@@ -18,8 +18,7 @@ class StoreHomeView(View):
 
     def get(self, request, *args, **kwargs):
         products = Product.objects.all()
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         highlighted_brands = HighlightedBrand.objects.filter(is_active=True)
         countries = Country.objects.all()
         banners = Banner.objects.all()
@@ -30,7 +29,6 @@ class StoreHomeView(View):
         context = {
             'products': products,
             'categories': categories,
-            'subcategories': subcategories,
             'highlighted_brands': highlighted_brands,
             'countries': countries,
             'banners': banners,
@@ -48,7 +46,7 @@ class StoreProductListView(View):
 
     def get(self, request, *args, **kwargs):
         products = Product.objects.all()
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         brands = Brand.objects.all()
         countries = Country.objects.all()
 
@@ -74,56 +72,41 @@ class StoreProductListView(View):
 class ProductsByCategoryView(View):
     template_name = 'store_product_list.html'
 
-    def get(self, request, category_name, *args, **kwargs):
-        category = get_object_or_404(Category, name=category_name)
-        products = Product.objects.filter(category=category)
-        categories = Category.objects.all()
+    def get(self, request, category_path, *args, **kwargs):
+        # Divide o caminho da categoria em uma lista
+        category_names = category_path.strip('/').split('/')
+        
+        # Inicializa a categoria atual como None
+        current_category = None
+
+        # Itera sobre os nomes das categorias para encontrar a categoria correta
+        for category_name in category_names:
+            if current_category:
+                current_category = get_object_or_404(Category, name=category_name, parent=current_category)
+            else:
+                current_category = get_object_or_404(Category, name=category_name, parent__isnull=True)
+        
+        # Obtenha os produtos da categoria atual
+        products = Product.objects.filter(category=current_category)
+        
+        # Obtenha todas as categorias de nível superior para o menu de navegação
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
+        
+        # Obtenha todas as marcas e países
         brands = Brand.objects.all()
         countries = Country.objects.all()
-
-        # Pegando o valor de produtos por página do request, ou definindo o padrão como 16
+        
+        # Pegue o valor de produtos por página do request, ou defina o padrão como 16
         products_per_page = request.GET.get('products_per_page', 16)
         products_per_page = int(products_per_page)
-
+        
         paginator = Paginator(products, products_per_page)
-
+        
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-
+        
         context = {
-            'selected_category': category,
-            'products': page_obj,
-            'categories': categories,
-            'brands': brands,
-            'countries': countries,
-            'page_obj': page_obj,
-            'products_per_page': products_per_page,
-        }
-        return render(request, self.template_name, context)
-
-class ProductsBySubcategoryView(View):
-    template_name = 'store_product_list.html'
-
-    def get(self, request, category_name, subcategory_name, *args, **kwargs):
-        category = get_object_or_404(Category, name=category_name)
-        subcategory = get_object_or_404(Subcategory, name=subcategory_name, category=category)
-        products = Product.objects.filter(category=category, subcategory=subcategory)
-        categories = Category.objects.all()
-        brands = Brand.objects.all()
-        countries = Country.objects.all()
-
-        # Pegando o valor de produtos por página do request, ou definindo o padrão como 16
-        products_per_page = request.GET.get('products_per_page', 16)
-        products_per_page = int(products_per_page)
-
-        paginator = Paginator(products, products_per_page)
-
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
-        context = {
-            'selected_category': category,
-            'selected_subcategory': subcategory,
+            'selected_category': current_category,
             'products': page_obj,
             'categories': categories,
             'brands': brands,
@@ -139,7 +122,7 @@ class ProductsByBrandView(View):
     def get(self, request, brand_name, *args, **kwargs):
         brand = get_object_or_404(Brand, name=brand_name)
         products = Product.objects.filter(brand=brand)
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         brands = Brand.objects.all()
         countries = Country.objects.all()
 
@@ -169,7 +152,7 @@ class ProductsByCountryView(View):
     def get(self, request, country_name, *args, **kwargs):
         country = get_object_or_404(Country, name=country_name)
         products = Product.objects.filter(country=country)
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         brands = Brand.objects.all()
         countries = Country.objects.all()
 
@@ -199,7 +182,7 @@ class SearchProductView(View):
     def get(self, request, *args, **kwargs):
         search_query = request.GET.get('q')
         products = Product.objects.all()
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         brands = Brand.objects.all()
         countries = Country.objects.all()
 
@@ -251,7 +234,7 @@ class StoreProductBestSellerView(View):
     template_name = 'store_product_best_seller.html'
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         brands = Brand.objects.all()
         countries = Country.objects.all()
         best_seller_products = BestSellerProduct.objects.all()
@@ -281,7 +264,7 @@ class StoreProductFreshListView(View):
     template_name = 'store_product_fresh_list.html'
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         brands = Brand.objects.all()
         countries = Country.objects.all()
 
@@ -313,8 +296,7 @@ class StoreProductPromotionsView(View):
     template_name = 'store_product_promotions.html'
 
     def get(self, request, *args, **kwargs):
-        print("StoreProductPromotionsView accessed")
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         brands = Brand.objects.all()
         countries = Country.objects.all()
         promotions = Promotion.objects.all()
@@ -344,8 +326,7 @@ class StoreProductDetailView(View):
 
     def get(self, request, pk, product_name, *args, **kwargs):
         product = get_object_or_404(Product, pk=pk)
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         nutritional_info = NutritionalInfo.objects.filter(product=product)
 
         # Recupera os ingredientes associados ao produto, se existirem
@@ -355,19 +336,12 @@ class StoreProductDetailView(View):
             ingredients = None
 
         # Adiciona informações de categoria e subcategoria
-        if product.subcategory:
-            selected_subcategory = product.subcategory
-            selected_category = product.subcategory.category
-        else:
-            selected_category = product.category
-            selected_subcategory = None
+        selected_category = product.category
 
         context = {
             'product': product,
             'categories': categories,
-            'subcategories': subcategories,
             'selected_category': selected_category,
-            'selected_subcategory': selected_subcategory,
             'ingredients': ingredients,
             'nutritional_infos': nutritional_info,
             'is_not_list_page': True,
@@ -378,12 +352,10 @@ class AboutUsView(View):
     template_name = 'store_about_us.html'
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
 
         context = {
             'categories': categories,
-            'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
         }
@@ -393,12 +365,10 @@ class DeliveryInfoView(View):
     template_name = 'store_delivery_info.html'
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
 
         context = {
             'categories': categories,
-            'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
         }
@@ -408,12 +378,10 @@ class PrivacyPolicyView(View):
     template_name = 'store_privacy_policy.html'
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
 
         context = {
             'categories': categories,
-            'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
         }

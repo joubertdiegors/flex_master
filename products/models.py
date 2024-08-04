@@ -10,7 +10,7 @@ from io import BytesIO
 from unidecode import unidecode
 
 from branches.models import Country
-from categories.models import Category, Subcategory
+from categories.models import Category
 
 #Esta tabela armazena a unidade de medida para a venda do produto, se é a peça, ao kg, ao litro e etc...
 class SalesUnit(models.Model):
@@ -128,8 +128,7 @@ class Product(models.Model):
     package_unit = models.ForeignKey(PackageUnit, on_delete=models.PROTECT, related_name='products_package_unit', null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name='products_brand')
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, related_name='products_country')
-    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='products_category')
-    subcategory = models.ForeignKey(Subcategory, on_delete=models.PROTECT, related_name='products_subcategory')
+    category = models.ManyToManyField(Category, related_name='products_category', blank=True)
     sales_unit = models.ForeignKey(SalesUnit, on_delete=models.PROTECT, null=True, blank=True, related_name='products_sales_unit')
     net_weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
     gross_weight = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)

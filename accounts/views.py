@@ -6,7 +6,7 @@ from django.views import View
 from .forms import UserBasicRegistrationForm, CustomerBasicRegistrationForm, CustomerCompleteRegistrationForm
 from .mixins.mixins import CustomerAccessMixin
 from customers.models import Customer, CustomerState, CustomerType
-from products.models import Category, Subcategory
+from products.models import Category
 
 def login_view(request):
     if request.method == "POST":

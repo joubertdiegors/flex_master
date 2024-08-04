@@ -51,8 +51,11 @@ class PackageUnitForm(forms.ModelForm):
         }
 
 class ProductForm(forms.ModelForm):
-    category = forms.ModelChoiceField(queryset=models.Category.objects.all(), widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_category'}))
-    subcategory = forms.ModelChoiceField(queryset=models.Subcategory.objects.none(), widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_subcategory'}))
+    category = forms.ModelMultipleChoiceField(
+        queryset=models.Category.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control', 'id': 'id_category', 'style': 'height: 300px;'}),
+        required=False
+    )
 
     class Meta:
         model = Product
@@ -64,7 +67,6 @@ class ProductForm(forms.ModelForm):
             'brand',
             'country',
             'category',
-            'subcategory',
             'sales_unit',
             'net_weight',
             'gross_weight',
@@ -96,40 +98,21 @@ class ProductForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input', 'role': 'switch', 'id': 'isActiveSwitch'})
         }
 
-        labels = {
-            'barcode': 'Código de Barras',
-            'name': 'Nome do Produto',
-            'volume': 'Volume do produto (300g, 1kg, 330ml)',
-            'volume_unit': 'Como é medido o volume (kg, ml; L)',
-            'brand': 'Marca',
-            'country': 'País de produção',
-            'category': 'Categoria',
-            'subcategory': 'Subcategoria',
-            'unit_measurement': 'Unidade de Medida',
-            'net_weight': 'Peso NET (kg)',
-            'gross_weight': 'Peso Bruto (kg)',
-            'stock_control': 'Controlar o estoque?',
-            'minimum_stock': 'Estoque Mínimo',
-            'maximum_stock': 'Estoque Máximo',
-            'selling_price': 'Preço de Venda ($)',
-            'image': 'Imagem do Produto',
-            'description': 'Descrição',
-            'is_active': 'Produto Ativo?'
-        }
-
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(ProductForm, self).__init__(*args, **kwargs)
+        self.fields['category'].choices = self.get_category_choices()
 
-        if 'category' in self.data:
-            try:
-                category_id = int(self.data.get('category'))
-                self.fields['subcategory'].queryset = models.Subcategory.objects.filter(category_id=category_id).order_by('name')
-            except (ValueError, TypeError):
-                self.fields['subcategory'].queryset = models.Subcategory.objects.none()
-        elif self.instance.pk:
-            self.fields['subcategory'].queryset = models.Subcategory.objects.filter(category=self.instance.category).order_by('name')
-        else:
-            self.fields['subcategory'].queryset = models.Subcategory.objects.none()
+    def get_category_choices(self):
+        categories = models.Category.objects.all()
+        category_choices = []
+
+        def add_children(categories, level=0):
+            for category in categories:
+                category_choices.append((category.id, f"{'--' * level} {category.name}"))
+                add_children(category.subcategories.all(), level + 1)
+
+        add_children(categories.filter(parent=None))
+        return category_choices
 
 class IngredientsForm(forms.ModelForm):
     class Meta:

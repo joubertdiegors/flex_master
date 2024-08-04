@@ -1,31 +1,11 @@
-<nav class="navbar navbar-expand-lg d-none d-lg-block" id="navbarMain" style="background-color: rgb(3, 90, 0);">
+<nav class="navbar navbar-expand-lg" id="navbarMain" style="background-color: rgb(3, 90, 0);">
     <div class="container">
+        <!-- Button to open sidebar -->
+        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+            ☰ Menu
+        </button>
 
-        <div class="d-flex" id="navbarNavDropdown">
-            <!-- Logomarca navbar -->
-            <a class="navbar-brand" href="{% url 'store_home' %}">
-                <img src="{{ navbar_logo_url }}" alt="Sacolão" class="navbar-logo-small" style="max-height: 30px;">
-            </a>
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a href="{% url 'store_product_list' %}" class="nav-link {% if not selected_category %}active{% endif %}">Todos os Produtos</a>
-                </li>
-                {% for category in categories %}
-                <li class="nav-item dropdown">
-                    <a href="{% url 'store_products_by_category' category.name %}" class="nav-link dropdown-toggle {% if selected_category and selected_category.name == category.name %}active{% endif %}" id="navbarDropdown{{ category.id }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ category.name }}
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown{{ category.id }}">
-                        {% for subcategory in category.subcategories.all %}
-                        <li><a class="dropdown-item {% if selected_subcategory and selected_subcategory.name == subcategory.name %}active{% endif %}" href="{% url 'store_products_by_subcategory' category.name subcategory.name %}">{{ subcategory.name }}</a></li>
-                        {% endfor %}
-                        <li><a class="dropdown-item" href="{% url 'store_products_by_category' category.name %}">Mostrar tudo</a></li>
-                    </ul>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        
+        <!-- Cart -->
         <div class="d-flex justify-content-end">
             <a href="{% url 'cart_detail' %}" class="d-flex align-items-center text-white text-decoration-none">
                 <i class="bi bi-cart" style="font-size: 1.8em;"></i>
@@ -38,10 +18,12 @@
     </div>
 </nav>
 
+{% include 'components/_sidebar_categories_store.html' %}
+
 {% block extra_styles %}
 <style>
     .cart-text {
-    font-size: 0.8em;
+        font-size: 0.8em;
     }
 
     .fixed-navbar {
@@ -73,25 +55,6 @@
 
     .navbar-nav .nav-link.active {
         color: rgb(9, 255, 0);
-    }
-
-    .navbar-nav .dropdown-menu {
-        background-color: rgb(3, 90, 0);
-        color: #ffffff;
-        font-size: 1.1em;
-    }
-
-    .navbar-nav .dropdown-item {
-        color: #ffffff;
-    }
-
-    .navbar-nav .dropdown-item:hover, .navbar-nav .dropdown-item:focus {
-        color: rgb(3, 90, 0);
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .navbar-nav .dropdown-item.active {
-        color: rgb(3, 90, 0);
     }
 </style>
 {% endblock %}

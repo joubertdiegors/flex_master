@@ -13,7 +13,7 @@ class CartDetailView(CartMixin, View):
     template_name = 'cart_detail.html'
 
     def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
         cart = self.get_or_create_cart(request)
         total_items = sum(item.quantity for item in cart.items.all())
         total_cost = cart.get_total_cost()

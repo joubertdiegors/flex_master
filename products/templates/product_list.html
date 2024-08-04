@@ -33,7 +33,7 @@ Produtos
         <th>Código de Barras</th>
         <th>Nome</th>
         <th>Marca</th>
-        <th>Categoria</th>
+        <th>Categorias</th>
         <th>Preço de Venda</th>
         <th>Ativo</th>
         <th>Ações</th>
@@ -46,7 +46,11 @@ Produtos
         <td>{{ product.barcode }}</td>
         <td>{{ product.name }}</td>
         <td>{{ product.brand }}</td>
-        <td>{{ product.category }}</td>
+        <td>
+          {% for category in product.category.all %}
+            {{ category.name }}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </td>
         <td>{{ product.selling_price }}</td>
         <td>{{ product.is_active }}</td>
         <td>

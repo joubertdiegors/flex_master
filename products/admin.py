@@ -1,5 +1,7 @@
 from django.contrib import admin
 from .models import SalesUnit, PackageUnit, Brand, Product, Ingredients, NutritionalItem, NutritionalInfo
+from categories.models import Category
+from django import forms
 
 
 class BrandAdmin(admin.ModelAdmin):
@@ -28,8 +30,7 @@ class ProductAdmin(admin.ModelAdmin):
         'package_unit',
         'brand',
         'country',
-        'category',
-        'subcategory',
+        'get_categories',  # Use 'get_categories' here
         'sales_unit',
         'net_weight',
         'gross_weight',
@@ -43,7 +44,11 @@ class ProductAdmin(admin.ModelAdmin):
         'created_by',
         'updated_by',
     )
-    search_fields = ('name', 'barcode', 'brand', 'category', 'subcategory')
+    search_fields = ('name', 'barcode', 'brand', 'category__name')
+
+    def get_categories(self, obj):
+        return ", ".join([category.name for category in obj.category.all()])
+    get_categories.short_description = 'Categories'
 
 admin.site.register(Product, ProductAdmin)
 

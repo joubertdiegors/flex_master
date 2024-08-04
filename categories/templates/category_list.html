@@ -7,135 +7,148 @@ Lista de Categorias
 {% block content %}
 
 <style>
-  .btn-no-underline {
-    text-decoration: none !important;
-  }
-
-  .btn-full-width {
-    width: 100%;
-    text-align: left;
+  .tree, .tree ul {
+    margin: 0;
     padding: 0;
-    background-color: transparent;
+    list-style: none;
   }
 
-  .btn-content {
-    padding: 0.75rem 1.25rem;
+  .tree ul {
+    margin-left: 1em;
+    position: relative;
+  }
+
+  .tree ul ul {
+    margin-left: .5em;
+  }
+
+  .tree ul:before {
+    content: "";
+    display: block;
+    width: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    border-left: 1px solid #ccc;
+  }
+
+  .tree li {
+    margin: 0;
+    padding: 0.5em 1em;
+    line-height: 2em;
+    color: #ffffff;
+    font-weight: 400;
+    position: relative;
+  }
+
+  .tree li span {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tree li .collapse-icon {
+    margin-right: 5px;
+    transition: transform 0.3s, color 0.3s;
+  }
+
+  .tree li.collapsed .collapse-icon {
+    color: #ffffff;
+  }
+
+  .tree li .category-image {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 10px;
+  }
+
+  .tree li:before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 0;
+    border-top: 1px solid #ccc;
+    margin-top: -1px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .tree li:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-left: 1px solid #ccc;
+    height: 100%;
+    width: 0;
+  }
+
+  .tree li:last-child:after {
+    height: 1em;
+  }
+
+  .tree li.collapsed > ul {
+    display: none;
+  }
+
+  .tree li ul {
+    margin: 0;
   }
 </style>
 
-<div class="row mb-3">
-  <div class="col-md-6">
-    <form method="get" action="{% url 'category_list' %}">
-      <div class="input-group">
-        <input type="text" class="form-control" name="name" placeholder="Pesquisar Categoria" value="{{ request.GET.name }}">
-        <button type="submit" class="btn btn-primary">
-          <i class="bi bi-search"></i>
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+<div class="container mt-4">
+  <!-- Botão para Criar Nova Categoria -->
+  <button type="button" id="createCategoryButton" class="btn btn-primary mb-3">Criar Nova Categoria</button>
 
-<div class="row mb-3">
-  <div class="">
-    {% if messages %}
-      <div>
-        {% for message in messages %}
-        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" role="alert">
-            {{ message }}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </div>
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        Categorias
-      </div>
-      <ul class="list-group">
-        {% for category in categories %}
-        <li class="list-group-item d-flex justify-content-between align-items-center {% if selected_category and selected_category.id == category.id %}active{% endif %}">
-          <form method="get" action="{% url 'subcategory_list' category.id %}">
-            <button type="submit" class="btn btn-full-width {% if selected_category and selected_category.id == category.id %}btn-primary{% else %}btn-no-underline btn-link{% endif %}">
-              <span class="btn-content">{{ category.name }}</span>
-            </button>
-          </form>
-          <div>
-            <button type="button" class="btn btn-sm btn-outline-secondary edit-category-btn" data-bs-toggle="modal" data-bs-target="#editCategoryModal" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger delete-category-btn" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-category-id="{{ category.id }}" data-category-name="{{ category.name }}">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-  <div class="col-md-6">
-    <div class="card">
-      <div class="card-header">
-        Subcategorias
-      </div>
-      <ul class="list-group list-group-flush">
-        {% if subcategories %}
-          {% for subcategory in subcategories %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ subcategory.name }}
-            <div>
-              <button type="button" class="btn btn-sm btn-outline-secondary edit-subcategory-btn" data-bs-toggle="modal" data-bs-target="#editSubcategoryModal" data-subcategory-id="{{ subcategory.id }}" data-subcategory-name="{{ subcategory.name }}" data-category-id="{{ subcategory.category.id }}">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-danger delete-subcategory-btn" data-bs-toggle="modal" data-bs-target="#deleteSubcategoryModal" data-subcategory-id="{{ subcategory.id }}" data-subcategory-name="{{ subcategory.name }}">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </li>
-          {% endfor %}
-        {% else %}
-          <li class="list-group-item">Selecione uma categoria para ver as subcategorias</li>
+  <!-- Categories Tree -->
+  <div class="tree">
+    <ul>
+      {% for category in categories %}
+        {% if category.parent is None %}
+          {% include 'category_tree_item.html' with category=category subcategories=categories %}
         {% endif %}
-      </ul>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<!-- Modal para criar nova categoria -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createCategoryModalLabel">Criar Nova Categoria</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="createCategoryForm" method="post" enctype="multipart/form-data" action="{% url 'category_create' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="new_category_name" class="form-label">Nome da Categoria</label>
+            <input type="text" class="form-control" id="new_category_name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="new_category_image" class="form-label">Imagem da Categoria</label>
+            <input type="file" class="form-control" id="new_category_image" name="image">
+          </div>
+          <div class="mb-3">
+            <label for="new_category_parent" class="form-label">Categoria Vinculada</label>
+            <select class="form-select" id="new_category_parent" name="parent">
+              <!-- Options will be populated by JavaScript -->
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Criar Categoria</button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="row mb-3">
-  <div class="col-md-12">
-    <form method="post" action="{% url 'category_create' %}">
-      {% csrf_token %}
-      <div class="input-group">
-        <input type="text" class="form-control" name="name" placeholder="Nova Categoria">
-        <button type="submit" class="btn btn-primary">
-          Adicionar Categoria
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="row mb-3">
-  <div class="col-md-12">
-    <form method="post" action="{% url 'subcategory_create' %}">
-      {% csrf_token %}
-      <div class="input-group">
-        <input type="text" class="form-control" name="name" placeholder="Nova Subcategoria">
-        <select class="form-select" name="category">
-          {% for category in categories %}
-          <option value="{{ category.id }}">{{ category.name }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary">
-          Adicionar Subcategoria
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Edit Category Modal -->
+<!-- Modal para Editar categoria -->
 <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -144,157 +157,213 @@ Lista de Categorias
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="editCategoryForm" method="post">
+        <form id="editCategoryForm" method="post" enctype="multipart/form-data">
           {% csrf_token %}
+          <input type="hidden" name="category_id" id="category_id">
           <div class="mb-3">
-            <label for="editCategoryName" class="form-label">Nome da Categoria</label>
-            <input type="text" class="form-control" id="editCategoryName" name="name">
+            <label for="category_name" class="form-label">Nome da Categoria</label>
+            <input type="text" class="form-control" id="category_name" name="name" required>
           </div>
-          <button type="submit" class="btn btn-primary">Salvar</button>
+          <div class="mb-3">
+            <label for="current_category_image" class="form-label">Imagem Atual</label>
+            <div id="current_category_image_container">
+              <!-- Imagem atual será exibida aqui -->
+              <img id="current_category_image" src="" alt="Imagem Atual" class="img-fluid">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="category_image" class="form-label">Imagem da Categoria (opcional)</label>
+            <input type="file" class="form-control" id="category_image" name="image">
+          </div>
+          <div class="mb-3">
+            <label for="category_parent" class="form-label">Categoria Vinculada</label>
+            <select class="form-select" id="category_parent" name="parent">
+              <option value="">Nenhuma</option>
+              {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Salvar mudanças</button>
         </form>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal para Confirmar Exclusão de Categoria -->
+<!-- Modal para Exclusão de Categoria -->
 <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteCategoryModalLabel">Confirmar Exclusão</h5>
+        <h5 class="modal-title" id="deleteCategoryModalLabel">Excluir Categoria</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Deseja realmente excluir a categoria <span id="deleteCategoryName"></span>?</p>
+        <p>Você tem certeza que deseja excluir a categoria "<span id="delete_category_name"></span>"?</p>
+      </div>
+      <div class="modal-footer">
         <form id="deleteCategoryForm" method="post">
           {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Confirmar</button>
+          <input type="hidden" id="delete_category_id" name="category_id">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Excluir</button>
         </form>
       </div>
     </div>
   </div>
 </div>
-
-
-<!-- Edit Subcategory Modal -->
-<div class="modal fade" id="editSubcategoryModal" tabindex="-1" aria-labelledby="editSubcategoryModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editSubcategoryModalLabel">Editar Subcategoria</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="editSubcategoryForm" method="post">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label for="editSubcategoryName" class="form-label">Nome da Subcategoria</label>
-            <input type="text" class="form-control" id="editSubcategoryName" name="name">
-          </div>
-          <div class="mb-3">
-            <label for="editSubcategoryCategory" class="form-label">Categoria</label>
-            <select class="form-select" id="editSubcategoryCategory" name="category">
-              {% for category in categories %}
-              <option value="{{ category.id }}">{{ category.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Salvar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal para Confirmar Exclusão de Subcategoria -->
-<div class="modal fade" id="deleteSubcategoryModal" tabindex="-1" aria-labelledby="deleteSubcategoryModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteSubcategoryModalLabel">Confirmar Exclusão</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Deseja realmente excluir a subcategoria <span id="deleteSubcategoryName"></span>?</p>
-        <form id="deleteSubcategoryForm" method="post">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Confirmar</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
 
 <script>
-  // Edição de Categorias
-document.addEventListener('DOMContentLoaded', function () {
-  var editCategoryModal = document.getElementById('editCategoryModal');
-  var editCategoryForm = document.getElementById('editCategoryForm');
-  var editCategoryName = document.getElementById('editCategoryName');
+  document.addEventListener('DOMContentLoaded', function () {
+    function setupTreeToggle() {
+      document.querySelectorAll('.collapse-icon').forEach(icon => {
+        icon.addEventListener('click', function() {
+          const li = this.closest('li');
+          const isCollapsed = li.classList.toggle('collapsed');
 
-  var editSubcategoryModal = document.getElementById('editSubcategoryModal');
-  var editSubcategoryForm = document.getElementById('editSubcategoryForm');
-  var editSubcategoryName = document.getElementById('editSubcategoryName');
-  var editSubcategoryCategory = document.getElementById('editSubcategoryCategory');
+          // Toggle icon based on the state
+          const iconElement = this.querySelector('i');
+          if (isCollapsed) {
+            iconElement.classList.remove('bi-arrow-bar-down');
+            iconElement.classList.add('bi-arrow-right');
+          } else {
+            iconElement.classList.remove('bi-arrow-right');
+            iconElement.classList.add('bi-arrow-bar-down');
+          }
+        });
+      });
+    }
 
-  document.querySelectorAll('.edit-category-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var categoryId = btn.getAttribute('data-category-id');
-      var categoryName = btn.getAttribute('data-category-name');
+    setupTreeToggle(); // Initialize tree toggle functionality
 
-      editCategoryModal.querySelector('.modal-title').textContent = 'Editar Categoria: ' + categoryName;
-      editCategoryForm.action = '{% url "category_update" 0 %}'.replace('0', categoryId);
-      editCategoryName.value = categoryName;
+    // Modal de criação de nova categoria
+    document.getElementById('createCategoryButton').addEventListener('click', function() {
+      const createCategoryModal = new bootstrap.Modal(document.getElementById('createCategoryModal'));
+      createCategoryModal.show();
+    });
+
+    // Função para buscar categorias
+    function fetchCategories() {
+      fetch('{% url "category_list_json" %}')
+        .then(response => response.json())
+        .then(data => {
+          buildCategoryOptions(data);
+        });
+    }
+
+    // Função para construir opções de categorias
+    function buildCategoryOptions(categories) {
+      const createSelect = document.getElementById('new_category_parent');
+      const editSelect = document.getElementById('category_parent');
+      
+      // Limpar opções existentes
+      createSelect.innerHTML = '<option value="">Nenhuma</option>';
+      editSelect.innerHTML = '<option value="">Nenhuma</option>';
+      
+      function createOptions(selectElement, categories, parentId, level) {
+        categories
+          .filter(cat => cat.parent === parentId)
+          .forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = `${'--'.repeat(level)} ${cat.name}`;
+            selectElement.appendChild(option);
+
+            // Recursively add child categories
+            createOptions(selectElement, categories, cat.id, level + 1);
+          });
+      }
+
+      // Criar opções para ambos os selects
+      createOptions(createSelect, categories, null, 0);
+      createOptions(editSelect, categories, null, 0);
+    }
+
+    fetchCategories(); // Fetch and populate categories on load
+
+    // Edição de categorias
+    document.querySelectorAll('.edit-icon').forEach(icon => {
+      icon.addEventListener('click', function() {
+        const li = this.closest('li');
+        const categoryId = li.dataset.id;
+        const categoryName = li.dataset.name;
+        const categoryImage = li.dataset.image;
+        const categoryParent = li.dataset.parent;
+
+        // Preencher os campos do modal de edição
+        document.getElementById('category_id').value = categoryId;
+        document.getElementById('category_name').value = categoryName;
+        document.getElementById('category_parent').value = categoryParent;
+
+        // Definir o src da imagem existente
+        const imageElement = document.getElementById('current_category_image');
+        if (categoryImage) {
+          imageElement.src = categoryImage;
+          imageElement.style.display = 'block'; // Mostrar imagem se existir
+        } else {
+          imageElement.style.display = 'none'; // Esconder imagem se não existir
+        }
+
+        // Limpar o campo de imagem para permitir a seleção de uma nova imagem
+        document.getElementById('category_image').value = '';
+
+        // Atualizar a URL de ação do formulário de edição
+        document.getElementById('editCategoryForm').action = `/administration/categories/${categoryId}/update/`;
+
+        // Mostrar o modal de edição
+        const editCategoryModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+        editCategoryModal.show();
+      });
+    });
+
+    // Exclusão de categorias
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+      icon.addEventListener('click', function() {
+        const li = this.closest('li');
+        const categoryId = li.dataset.id;
+        const categoryName = li.dataset.name;
+
+        // Preencher os dados do modal de exclusão
+        document.getElementById('delete_category_id').value = categoryId;
+        document.getElementById('delete_category_name').textContent = categoryName;
+
+        // Mostrar o modal de exclusão
+        const deleteCategoryModal = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));
+        deleteCategoryModal.show();
+      });
+    });
+
+    // Submissão do formulário de exclusão
+    document.getElementById('deleteCategoryForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevenir o comportamento padrão de submissão do formulário
+      const form = event.target;
+      const categoryId = form.querySelector('#delete_category_id').value;
+
+      fetch(`/administration/categories/${categoryId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': form.querySelector('[name="csrfmiddlewaretoken"]').value,
+          'Content-Type': 'application/json' // Adicione Content-Type se necessário
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          // A resposta é OK, você pode fazer algo, como recarregar a página ou remover a categoria da interface
+          location.reload(); // Recarregar a página para refletir a exclusão
+        } else {
+          return response.json().then(data => {
+            alert(`Erro ao excluir a categoria: ${data.error || 'Erro desconhecido.'}`);
+          });
+        }
+      })
+      .catch(error => {
+        alert('Erro na solicitação de exclusão.');
+        console.error('Erro na solicitação:', error);
+      });
     });
   });
-
-  // Edição de Subcategorias
-  document.querySelectorAll('.edit-subcategory-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var subcategoryId = btn.getAttribute('data-subcategory-id');
-      var subcategoryName = btn.getAttribute('data-subcategory-name');
-      var categoryId = btn.getAttribute('data-category-id');
-
-      editSubcategoryModal.querySelector('.modal-title').textContent = 'Editar Subcategoria: ' + subcategoryName;
-      editSubcategoryForm.action = '{% url "subcategory_update" 0 %}'.replace('0', subcategoryId);
-      editSubcategoryName.value = subcategoryName;
-      editSubcategoryCategory.value = categoryId;
-    });
-  });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-  var deleteCategoryModal = document.getElementById('deleteCategoryModal');
-  var deleteCategoryForm = document.getElementById('deleteCategoryForm');
-  var deleteCategoryName = document.getElementById('deleteCategoryName');
-
-  document.querySelectorAll('.delete-category-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var categoryId = btn.getAttribute('data-category-id');
-      var categoryName = btn.getAttribute('data-category-name');
-
-      deleteCategoryName.textContent = categoryName;
-      deleteCategoryForm.action = '{% url "category_delete" 0 %}'.replace('0', categoryId);
-    });
-  });
-
-  var deleteSubcategoryModal = document.getElementById('deleteSubcategoryModal');
-  var deleteSubcategoryForm = document.getElementById('deleteSubcategoryForm');
-  var deleteSubcategoryName = document.getElementById('deleteSubcategoryName');
-
-  document.querySelectorAll('.delete-subcategory-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var subcategoryId = btn.getAttribute('data-subcategory-id');
-      var subcategoryName = btn.getAttribute('data-subcategory-name');
-
-      deleteSubcategoryName.textContent = subcategoryName;
-      deleteSubcategoryForm.action = '{% url "subcategory_delete" 0 %}'.replace('0', subcategoryId);
-    });
-  });
-});
 </script>
+
+
 {% endblock %}

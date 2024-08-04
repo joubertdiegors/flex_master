@@ -9,8 +9,7 @@ urlpatterns = [
     path('loja/novidades/', views.StoreProductFreshListView.as_view(), name='store_product_fresh_list'),
 
     path('loja/', views.StoreProductListView.as_view(), name='store_product_list'),
-    path('loja/<str:category_name>/', views.ProductsByCategoryView.as_view(), name='store_products_by_category'),
-    path('loja/<str:category_name>/<str:subcategory_name>/', views.ProductsBySubcategoryView.as_view(), name='store_products_by_subcategory'),
+    path('loja/<path:category_path>/', views.ProductsByCategoryView.as_view(), name='store_products_by_category'),
 
     path('marcas/<str:brand_name>/', views.ProductsByBrandView.as_view(), name='store_products_by_brand'),
     path('paises/<str:country_name>/', views.ProductsByCountryView.as_view(), name='store_products_by_country'),

@@ -9,70 +9,67 @@
             </li>
 
             {% if selected_category %}
-            <li class="breadcrumb-item">
-                <a href="{% url 'store_products_by_category' selected_category.name %}" class="text-decoration-none text-dark">
+                {% for category in selected_category.get_ancestors|default_if_none:'' %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'store_products_by_category' category.get_full_path %}" class="text-decoration-none text-dark">
+                            {{ category.name }}
+                        </a>
+                    </li>
+                {% endfor %}
+                <li class="breadcrumb-item active" aria-current="page">
                     {{ selected_category.name }}
-                </a>
-            </li>
-            {% endif %}
-
-            {% if selected_subcategory %}
-            <li class="breadcrumb-item">
-                <a href="{% url 'store_products_by_subcategory' selected_category.name selected_subcategory.name %}" class="text-decoration-none text-dark">
-                    {{ selected_subcategory.name }}
-                </a>
-            </li>
+                </li>
             {% endif %}
 
             {% if is_detail_page %}
-            <li class="breadcrumb-item active" aria-current="page">
-                {{ product.name }}
-            </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ product.name }}
+                </li>
             {% endif %}
 
             {% if selected_brand %}
-            <li class="breadcrumb-item">
-                <a href="{% url 'store_products_by_brand' selected_brand.name %}" class="text-decoration-none text-dark">
-                    Marcas
-                </a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {{ selected_brand.name }}
-            </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'store_products_by_brand' selected_brand.name %}" class="text-decoration-none text-dark">
+                        Marcas
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ selected_brand.name }}
+                </li>
             {% endif %}
 
             {% if selected_country %}
-            <li class="breadcrumb-item">
-                <a href="{% url 'store_products_by_country' selected_country.name %}" class="text-decoration-none text-dark">
-                    Países
-                </a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {{ selected_country.name }}
-            </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'store_products_by_country' selected_country.name %}" class="text-decoration-none text-dark">
+                        Países
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ selected_country.name }}
+                </li>
             {% endif %}
 
-            {% if not selected_brand and not selected_country and not selected_category and not selected_subcategory %}
-            <li class="breadcrumb-item active" aria-current="page">
-                Todos os Produtos
-            </li>
+            {% if not selected_brand and not selected_country and not selected_category %}
+                <li class="breadcrumb-item active" aria-current="page">
+                    Todos os Produtos
+                </li>
             {% endif %}
         </ol>
     </div>
-{% endif %}
+
     <div>
         {% if not is_not_list_page %}
         <div class="d-flex justify-content-end align-items-center flex-wrap text-center text-lg-end">
             <span class="me-2">Exibir</span>
             <select id="productsPerPage" class="form-select form-select-sm mx-2" style="width: auto;" onchange="changeProductsPerPage()">
-              <option value="8" {% if products_per_page == 8 %}selected{% endif %}>8</option>
-              <option value="16" {% if products_per_page == 16 %}selected{% endif %}>16</option>
-              <option value="24" {% if products_per_page == 24 %}selected{% endif %}>24</option>
-              <option value="36" {% if products_per_page == 36 %}selected{% endif %}>36</option>
+                <option value="8" {% if products_per_page == 8 %}selected{% endif %}>8</option>
+                <option value="16" {% if products_per_page == 16 %}selected{% endif %}>16</option>
+                <option value="24" {% if products_per_page == 24 %}selected{% endif %}>24</option>
+                <option value="36" {% if products_per_page == 36 %}selected{% endif %}>36</option>
             </select>
             <span>produtos por página</span>
         </div>
         {% endif %}
     </div>
 </div>
-
+{% endif %}
