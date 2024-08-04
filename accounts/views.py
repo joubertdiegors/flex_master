@@ -40,14 +40,12 @@ class RegisterBasicView(View):
         user_form = UserBasicRegistrationForm()
         customer_form = CustomerBasicRegistrationForm()
         
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
 
         context = {
             'user_form': user_form,
             'customer_form': customer_form,
             'categories': categories,
-            'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
         }
@@ -77,14 +75,12 @@ class RegisterBasicView(View):
 
             return redirect('complete_registration', customer_id=customer.id)
 
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
 
         context = {
             'user_form': user_form,
             'customer_form': customer_form,
             'categories': categories,
-            'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
         }
@@ -97,13 +93,11 @@ class CompleteRegistrationView(CustomerAccessMixin, View):
         customer = get_object_or_404(Customer, id=customer_id)
         form = CustomerCompleteRegistrationForm(instance=customer)
         
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
 
         context = {
             'form': form,
             'categories': categories,
-            'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
         }
@@ -117,13 +111,11 @@ class CompleteRegistrationView(CustomerAccessMixin, View):
             form.save()
             return redirect('/')  # Redirecionar para a página de perfil ou login
 
-        categories = Category.objects.all()
-        subcategories = Subcategory.objects.all()
+        categories = Category.objects.filter(parent__isnull=True).prefetch_related('subcategories')
 
         context = {
             'form': form,
             'categories': categories,
-            'subcategories': subcategories,
             'is_not_list_page': True,
             'breadcrumb_off': True,
         }
