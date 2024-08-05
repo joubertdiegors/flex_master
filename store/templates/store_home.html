@@ -285,7 +285,7 @@
                     }
                 }
             ]
-        });
+        }, { passive: true});
 
         // Carrosel de Destaques com Slick
         $('.banner-carousel').slick({
@@ -297,7 +297,7 @@
             slidesToScroll: 1,
             prevArrow: '<button type="button" class="slick-prev">Previous</button>',
             nextArrow: '<button type="button" class="slick-next">Next</button>',
-        });
+        }, { passive: true});
 
         // Carrossel de Marcas em Destaque
         $('.highlighted-brands-carousel').slick({
@@ -342,6 +342,6 @@
                 }
             ]
         });
-    });
+    }, { passive: true});
 </script>
 {% endblock %}
