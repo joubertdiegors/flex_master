@@ -19,7 +19,7 @@
             </thead>
             <tbody>
                 {% for item in cart.items.all %}
-                <tr id="cart-item-{{ item.product.id }}">
+                <tr id="table-item-{{ item.product.id }}">
                     <td class="text-center align-middle" data-label="Imagem">
                         {% if item.product.image %}
                         <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: auto; height: 80px;">
@@ -28,7 +28,7 @@
                         {% endif %}
                     </td>
                     <td data-label="Produto">{{ item.product.name }}</td>
-                    <td data-label="Preço">€{{ item.price }}</td>
+                    <td class="price" data-product-id="{{ item.product.id }}" data-label="Preço">€{{ item.price }}</td>
                     <td class="col-quantidade" data-label="Quantidade">
                         <div class="d-flex align-items-center">
                             <button class="btn btn-outline-secondary btn-quantity-left" type="button" onclick="updateQuantity('{{ item.product.id }}', 'table', 'decrement')">-</button>
@@ -36,7 +36,8 @@
                             <button class="btn btn-outline-secondary btn-quantity-right" type="button" onclick="updateQuantity('{{ item.product.id }}', 'table', 'increment')">+</button>
                         </div>
                     </td>
-                    <td data-label="Total">€{{ item.get_cost }}</td>
+                    
+                    <td class="total" data-product-id="{{ item.product.id }}" data-label="Total">€{{ item.get_cost }}</td>
                     <td data-label="Ações">
                         <button type="button" class="btn btn-danger" onclick="removeFromCart('{{ item.product.id }}')"><i class="bi bi-trash"></i></button>
                     </td>
@@ -69,7 +70,7 @@
                             <input type="number" id="quantity_card_{{ item.product.id }}" class="form-control form-control-sm mx-0 text-center quantity-input no-spinners" value="{{ item.quantity }}" min="1" step="1">
                             <button class="btn btn-outline-secondary btn-quantity-right" type="button" onclick="updateQuantity('{{ item.product.id }}', 'card', 'increment')">+</button>
                         </div>
-                        <p class="card-text">Total: €{{ item.get_cost }}</p>
+                        <p class="card-text">Total: <span class="total" data-product-id="{{ item.product.id }}">{{ item.get_cost }}</span></p>
                         <button type="button" class="btn btn-danger" onclick="removeFromCart('{{ item.product.id }}')"><i class="bi bi-trash"></i></button>
                     </div>
                 </div>
@@ -80,7 +81,7 @@
 
 
     <div class="d-flex justify-content-end">
-        Total de: <span id="cart-total-cost2">€{{ total_cost }}</span>
+        Total de: <span class="cart-total-cost">€{{ total_cost }}</span>
     </div>
     <hr>
     <a href="#" class="btn btn-primary">Finalizar Compra</a>
@@ -177,23 +178,54 @@ function updateQuantity(productId, type, action = null) {
         },
         success: function(response) {
             if (response.cart_data) {
-                document.getElementById('cart-total-items').textContent = response.cart_data.total_items;
-                document.getElementById('cart-total-cost').textContent = '€' + response.cart_data.total_cost.toFixed(2).replace('.', ',');
-                document.getElementById('cart-total-cost2').textContent = '€' + response.cart_data.total_cost.toFixed(2).replace('.', ',');
-                
-                // Atualizar total na tabela
-                var tableRow = document.getElementById('cart-item-' + productId);
-                if (tableRow) {
-                    var price = parseFloat(tableRow.querySelector('td:nth-child(3)').textContent.replace('€', '').replace(',', '.'));
-                    tableRow.querySelector('td:nth-child(5)').textContent = '€' + (price * updatedQuantity).toFixed(2).replace('.', ',');
-                }
+                // Captura e imprime o preço da linha do item
+                var priceElements = document.querySelectorAll('.price[data-product-id="' + productId + '"]');
+                var totalElements = document.querySelectorAll('.total[data-product-id="' + productId + '"]');
 
-                // Atualizar total no card
-                var cardRow = document.getElementById('cart-item-card-' + productId);
-                if (cardRow) {
-                    var price = parseFloat(cardRow.querySelector('.card-text').textContent.replace('Preço: €', '').replace(',', '.'));
-                    cardRow.querySelector('.card-text:last-of-type').textContent = 'Total: €' + (price * updatedQuantity).toFixed(2).replace('.', ',');
-                }
+                priceElements.forEach(function(priceElement) {
+                    var itemPrice = parseFloat(priceElement.textContent.replace('€', '').replace(',', '.'));
+                    console.log('Preço do item:', itemPrice);
+
+                    // Atualiza o custo total do item específico
+                    totalElements.forEach(function(totalElement) {
+                        var newTotalCost = itemPrice * updatedQuantity;
+                        totalElement.textContent = '€' + newTotalCost.toFixed(2).replace('.', ',');
+                    });
+                });
+
+                // Atualiza o total de itens e o custo total do carrinho
+                var totalItemsElements = document.querySelectorAll('.cart-total-items');
+                var totalCostElements = document.querySelectorAll('.cart-total-cost');
+                
+                totalItemsElements.forEach(function(element) {
+                    element.textContent = response.cart_data.total_items;
+                });
+                
+                totalCostElements.forEach(function(element) {
+                    element.textContent = '€' + response.cart_data.total_cost.toFixed(2);
+                });
+
+                // Atualizar o conteúdo do offcanvas
+                $.ajax({
+                    url: "{% url 'cart_detail' %}",  // URL da view que renderiza o offcanvas completo
+                    success: function(offcanvasResponse) {
+                        var offcanvasElement = $('#cartOffcanvas');
+                        
+                        // Encontrar e atualizar apenas o conteúdo do #cart-items-container
+                        var newContent = $(offcanvasResponse);
+                        var newItemsContainer = newContent.find('#cart-items-container').html();
+                        var footerContent = offcanvasElement.find('.cart-footer').html();  // Manter o footer atual
+
+                        offcanvasElement.find('.offcanvas-body').html(newItemsContainer + '<div class="cart-footer">' + footerContent + '</div>');
+
+                        // Atualizar o total no footer
+                        $('#cartOffcanvas .cart-total-cost').text('€' + response.cart_data.total_cost.toFixed(2).replace('.', ','));
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Ocorreu um erro ao atualizar o offcanvas: " + error);
+                    }
+                });
+
             } else {
                 console.error('Resposta AJAX inválida:', response);
             }
@@ -220,7 +252,6 @@ document.querySelectorAll('.quantity-input').forEach(function(input) {
     });
 });
 
-
 function removeFromCart(productId) {
     $.ajax({
         url: "{% url 'remove_from_cart' product_id=0 %}".replace('0', productId),
@@ -230,12 +261,20 @@ function removeFromCart(productId) {
         },
         success: function(response) {
             if (response.cart_data) {
-                document.getElementById('cart-total-items').textContent = response.cart_data.total_items;
-                document.getElementById('cart-total-cost').textContent = '€' + response.cart_data.total_cost.toFixed(2);
-                document.getElementById('cart-total-cost2').textContent = '€' + response.cart_data.total_cost.toFixed(2);
-                
+                // Atualizar o total de itens e o custo total do carrinho
+                var totalItemsElements = document.querySelectorAll('.cart-total-items');
+                var totalCostElements = document.querySelectorAll('.cart-total-cost');
+
+                totalItemsElements.forEach(function(element) {
+                    element.textContent = response.cart_data.total_items;
+                });
+
+                totalCostElements.forEach(function(element) {
+                    element.textContent = '€' + response.cart_data.total_cost.toFixed(2).replace('.', ',');
+                });
+
                 // Remover da tabela
-                var tableRow = document.getElementById('cart-item-' + productId);
+                var tableRow = document.getElementById('table-item-' + productId);
                 if (tableRow) {
                     tableRow.parentNode.removeChild(tableRow);
                 }
@@ -245,6 +284,28 @@ function removeFromCart(productId) {
                 if (cardRow) {
                     cardRow.parentNode.removeChild(cardRow);
                 }
+
+                // Atualizar o conteúdo do offcanvas
+                $.ajax({
+                    url: "{% url 'cart_detail' %}",  // URL da view que renderiza o offcanvas completo
+                    success: function(offcanvasResponse) {
+                        var offcanvasElement = $('#cartOffcanvas');
+                        
+                        // Encontrar e atualizar apenas o conteúdo do #cart-items-container
+                        var newContent = $(offcanvasResponse);
+                        var newItemsContainer = newContent.find('#cart-items-container').html();
+                        var footerContent = offcanvasElement.find('.cart-footer').html();  // Manter o footer atual
+
+                        offcanvasElement.find('.offcanvas-body').html(newItemsContainer + '<div class="cart-footer">' + footerContent + '</div>');
+
+                        // Atualizar o total no footer
+                        $('#cartOffcanvas .cart-total-cost').text('€' + response.cart_data.total_cost.toFixed(2).replace('.', ','));
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Ocorreu um erro ao atualizar o offcanvas: " + error);
+                    }
+                });
+
             } else {
                 console.error('Resposta AJAX inválida:', response);
             }

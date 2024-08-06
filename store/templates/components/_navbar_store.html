@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
         <div class="container mb-3">
-            <div class="row" style="height: 48px;">
+            <div class="row" style="height: 40px;">
 
                 <div class="col-4 d-flex align-items-center justify-content-start">
                     <button class="btn btn-primary" id="menu-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
@@ -38,12 +38,12 @@
                     </ul>
                 </div>
 
-                <div class="col-xxl-8 col-xl-8 col-lg-8 d-none d-lg-flex align-items-center justify-content-end" onclick="openCartSidebar()">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none">
+                <div class="col-xxl-8 col-xl-8 col-lg-8 d-none d-lg-flex align-items-center justify-content-end">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
                         <i class="bi bi-cart" style="font-size: 1.8em;"></i>
                         <div class="d-flex flex-column align-items-start ms-2">
-                            <span id="cart-total-items" class="cart-text text-white">{{ total_items }}</span>
-                            <span id="cart-total-cost" class="cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
+                            <span class="cart-total-items cart-text text-white">{{ total_items }}</span>
+                            <span class="cart-total-cost cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
                         </div>
                     </a>
                 </div>
@@ -53,7 +53,7 @@
 
         <div class="container d-block d-lg-none">
 
-            <div class="row" style="height: 48px;">
+            <div class="row" style="height: 40px;">
 
                 <div class="col-9 d-flex align-items-center justify-content-start">
                     <form class="input-group" action="{% url 'search_product' %}" method="GET" role="search">
@@ -63,12 +63,12 @@
                     </form>
                 </div>
 
-                <div class="col-3 d-flex align-items-center justify-content-end" onclick="openCartSidebar()">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none">
+                <div class="col-3 d-flex align-items-center justify-content-end">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
                         <i class="bi bi-cart" style="font-size: 1.8em;"></i>
                         <div class="d-flex flex-column align-items-start ms-2">
-                            <span id="cart-total-items" class="cart-text text-white">{{ total_items }}</span>
-                            <span id="cart-total-cost" class="cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
+                            <span class="cart-total-items cart-text text-white">{{ total_items }}</span>
+                            <span class="cart-total-cost cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
                         </div>
                     </a>
                 </div>
@@ -85,7 +85,10 @@
         top: 0;
         width: 100%;
         z-index: 1000;
-        height: 40;
+    }
+
+    .fixed-navbar-padding {
+        margin-top: 110px; /* Ajuste este valor conforme a altura do seu navbar */
     }
 </style>
 {% endblock %}
@@ -95,12 +98,15 @@
     window.addEventListener('scroll', function() {
         var header = document.querySelector('.navbar[style]');
         var navbar = document.querySelector('#navbarMain');
+        var mainContainer = document.querySelector('main');
 
-        if (header && navbar) {
+        if (header && navbar && mainContainer) {
             if (window.scrollY >= header.offsetHeight) {
                 navbar.classList.add('fixed-navbar');
+                mainContainer.classList.add('fixed-navbar-padding');
             } else {
                 navbar.classList.remove('fixed-navbar');
+                mainContainer.classList.remove('fixed-navbar-padding');
             }
         }
     }, { passive: true });
