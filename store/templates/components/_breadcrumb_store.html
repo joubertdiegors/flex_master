@@ -13,17 +13,10 @@
                         </li>
 
                         {% if selected_categories %}
-                            {% for category in selected_categories %}
-                                {% for ancestor in category.get_ancestors %}
-                                    <li class="breadcrumb-item {% if not category.parent %}parent-category{% endif %}">
-                                        <a href="{% url 'store_products_by_category' ancestor.get_full_path %}" class="text-decoration-none text-dark">
-                                            {{ ancestor.name }}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                                <li class="breadcrumb-item {% if category.parent is None %}parent-category{% endif %}">
-                                    <a href="{% url 'store_products_by_category' category.get_full_path %}" class="text-decoration-none text-dark">
-                                        {{ category.name }}
+                            {% for ancestor in selected_categories %}
+                                <li class="breadcrumb-item {% if not ancestor.parent %}parent-category{% endif %}">
+                                    <a href="{% url 'store_products_by_category' ancestor.get_full_path %}" class="text-decoration-none text-dark">
+                                        {{ ancestor.name }}
                                     </a>
                                 </li>
                             {% endfor %}
@@ -57,9 +50,27 @@
                             </li>
                         {% endif %}
 
-                        {% if not selected_brand and not selected_country and not selected_categories %}
+                        {% if not selected_brand and not selected_country and not selected_categories and not is_best_seller_page and not is_promotions_list_page and not is_fresh_list_page %}
                             <li class="breadcrumb-item active" aria-current="page">
                                 Todos os Produtos
+                            </li>
+                        {% endif %}
+                        
+                        {% if is_best_seller_page and not selected_brand and not selected_country and not selected_categories and not is_fresh_list_page and not is_promotions_list_page %}
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Mais Vendidos
+                            </li>
+                        {% endif %}
+                        
+                        {% if is_fresh_list_page and not selected_brand and not selected_country and not selected_categories and not is_best_seller_page and not is_promotions_list_page %}
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Novidades
+                            </li>
+                        {% endif %}
+                        
+                        {% if is_promotions_list_page and not selected_brand and not selected_country and not selected_categories and not is_fresh_list_page and not is_best_seller_page %}
+                            <li class="breadcrumb-item active" aria-current="page">
+                                Promoções
                             </li>
                         {% endif %}
                     </ol>

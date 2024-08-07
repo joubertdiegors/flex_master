@@ -78,6 +78,7 @@ class ProductsByCategoryView(View):
         
         # Inicializa a categoria atual como None
         current_category = None
+        ancestors = []  # Lista para armazenar categorias ancestrais
 
         # Itera sobre os nomes das categorias para encontrar a categoria correta
         for category_name in category_names:
@@ -85,6 +86,7 @@ class ProductsByCategoryView(View):
                 current_category = get_object_or_404(Category, name=category_name, parent=current_category)
             else:
                 current_category = get_object_or_404(Category, name=category_name, parent__isnull=True)
+            ancestors.append(current_category)  # Adiciona a categoria à lista de ancestrais
         
         # Obtenha os produtos da categoria atual
         products = Product.objects.filter(category=current_category)
@@ -110,6 +112,7 @@ class ProductsByCategoryView(View):
         
         context = {
             'selected_category': current_category,
+            'selected_categories': ancestors,  # Passa a lista de categorias ancestrais para o template
             'products': page_obj,
             'categories': categories,
             'subcategories': subcategories,
@@ -261,6 +264,7 @@ class StoreProductBestSellerView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,  # Supondo que esta função retorna URLs de logos
+            'is_best_seller_page': True,
         }
         return render(request, self.template_name, context)
 
@@ -293,6 +297,8 @@ class StoreProductFreshListView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,  # Supondo que esta função retorna URLs de logos
+            'is_fresh_list_page': True,
+            
         }
         return render(request, self.template_name, context)
 
@@ -322,6 +328,7 @@ class StoreProductPromotionsView(View):
             'countries': countries,
             'page_obj': page_obj,
             'products_per_page': products_per_page,
+            'is_promotions_list_page': True,
         }
         return render(request, self.template_name, context)
 
