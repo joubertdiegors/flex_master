@@ -50,7 +50,7 @@
     <!-- Lista de cards para telas menores -->
     <div class="d-block d-md-none">
         {% for item in cart.items.all %}
-        <div class="card mb-3" id="cart-item-card-{{ item.product.id }}">
+        <div class="card mb-3" id="cart-item-mobile-{{ item.product.id }}">
             <div class="card-body">
                 <h5 class="card-title">
                     {{ item.product.name }} {% if item.product.brand %} {{ item.product.brand }} {% endif %} {% if item.product.volume %} {{ item.product.volume }} {{ item.product.volume_unit.symbol }} {% endif %}
@@ -280,7 +280,7 @@ function removeFromCart(productId) {
                 }
 
                 // Remover do card
-                var cardRow = document.getElementById('cart-item-card-' + productId);
+                var cardRow = document.getElementById('cart-item-mobile-' + productId);
                 if (cardRow) {
                     cardRow.parentNode.removeChild(cardRow);
                 }
