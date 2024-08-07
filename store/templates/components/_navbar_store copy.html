@@ -78,15 +78,17 @@
         </div>
 
         <!-- Cart -->
-        <div class="d-flex justify-content-end">
-            <a href="{% url 'cart_detail' %}" class="d-flex align-items-center text-white text-decoration-none">
-                <i class="bi bi-cart" style="font-size: 1.8em;"></i>
-                <div class="d-flex flex-column align-items-start ms-2">
-                    <span id="cart-total-items" class="cart-text text-white">{{ total_items }}</span>
-                    <span id="cart-total-cost" class="cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
-                </div>
-            </a>
-        </div>
+        {% if not is_cart_detail_page %}
+            <div class="d-flex justify-content-end">
+                <a href="{% url 'cart_detail' %}" class="d-flex align-items-center text-white text-decoration-none">
+                    <i class="bi bi-cart" style="font-size: 1.8em;"></i>
+                    <div class="d-flex flex-column align-items-start ms-2">
+                        <span id="cart-total-items" class="cart-text text-white">{{ total_items }}</span>
+                        <span id="cart-total-cost" class="cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
     </div>
 </nav>
 

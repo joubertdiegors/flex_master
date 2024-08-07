@@ -104,11 +104,15 @@ class ProductsByCategoryView(View):
         
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+
+        # Obtenha as subcategorias da categoria atual
+        subcategories = current_category.subcategories.all()
         
         context = {
             'selected_category': current_category,
             'products': page_obj,
             'categories': categories,
+            'subcategories': subcategories,
             'brands': brands,
             'countries': countries,
             'page_obj': page_obj,

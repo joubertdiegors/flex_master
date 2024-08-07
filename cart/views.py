@@ -24,6 +24,7 @@ class CartDetailView(CartMixin, View):
             'total_cost': total_cost,
             'is_not_list_page': True,
             'breadcrumb_off': True,
+            'is_cart_detail_page': True,
         })
 
 class AddToCartView(CartMixin, View):

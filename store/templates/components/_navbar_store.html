@@ -37,17 +37,18 @@
                         </li>
                     </ul>
                 </div>
-
-                <div class="col-xxl-8 col-xl-8 col-lg-8 d-none d-lg-flex align-items-center justify-content-end">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
-                        <i class="bi bi-cart" style="font-size: 1.8em;"></i>
-                        <div class="d-flex flex-column align-items-start ms-2">
-                            <span class="cart-total-items cart-text text-white">{{ total_items }}</span>
-                            <span class="cart-total-cost cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
-                        </div>
-                    </a>
-                </div>
-
+                
+                {% if not is_cart_detail_page %}
+                    <div class="col-xxl-8 col-xl-8 col-lg-8 d-none d-lg-flex align-items-center justify-content-end">
+                        <a href="#" class="d-flex align-items-center text-white text-decoration-none" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
+                            <i class="bi bi-cart" style="font-size: 1.8em;"></i>
+                            <div class="d-flex flex-column align-items-start ms-2">
+                                <span class="cart-total-items cart-text text-white">{{ total_items }}</span>
+                                <span class="cart-total-cost cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
+                            </div>
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
@@ -63,15 +64,17 @@
                     </form>
                 </div>
 
-                <div class="col-3 d-flex align-items-center justify-content-end">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
-                        <i class="bi bi-cart" style="font-size: 1.8em;"></i>
-                        <div class="d-flex flex-column align-items-start ms-2">
-                            <span class="cart-total-items cart-text text-white">{{ total_items }}</span>
-                            <span class="cart-total-cost cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
-                        </div>
-                    </a>
-                </div>
+                {% if not is_cart_detail_page %}
+                    <div class="col-3 d-flex align-items-center justify-content-end">
+                        <a href="#" class="d-flex align-items-center text-white text-decoration-none" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas" aria-controls="cartOffcanvas">
+                            <i class="bi bi-cart" style="font-size: 1.8em;"></i>
+                            <div class="d-flex flex-column align-items-start ms-2">
+                                <span class="cart-total-items cart-text text-white">{{ total_items }}</span>
+                                <span class="cart-total-cost cart-text text-white">€{{ total_cost|default:"0.00" }}</span>
+                            </div>
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
