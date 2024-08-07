@@ -340,15 +340,16 @@ class StoreProductDetailView(View):
             ingredients = None
 
         # Adiciona informações de categoria e subcategoria
-        selected_category = product.category
+        selected_categories = product.category.all()
 
         context = {
             'product': product,
             'categories': categories,
-            'selected_category': selected_category,
+            'selected_categories': selected_categories,
             'ingredients': ingredients,
             'nutritional_infos': nutritional_info,
             'is_not_list_page': True,
+            'is_detail_page': True,
         }
         return render(request, self.template_name, context)
 

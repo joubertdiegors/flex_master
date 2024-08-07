@@ -124,7 +124,7 @@ def delete_image_on_clear(sender, instance, **kwargs):
 class Product(models.Model):
     barcode = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=200)
-    volume = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    volume = models.CharField(max_length=10, null=True, blank=True)
     package_unit = models.ForeignKey(PackageUnit, on_delete=models.PROTECT, related_name='products_package_unit', null=True, blank=True)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name='products_brand')
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, related_name='products_country')

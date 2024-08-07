@@ -30,8 +30,12 @@
       </div>
       <div class="card-body">
         <h5 class="card-title text-center product-name mb-2 mb-sm-3">
-          {{ product.name }} {% if product.brand %} {{ product.brand }} {% endif %} {% if product.volume %} {{ product.volume }} {{ product.volume_unit.symbol }} {% endif %}
+          {{ product.name }}, {% if product.volume %} {{ product.volume }}{{ product.package_unit.symbol }} {% endif %}
         </h5>
+        <!-- Adiciona a marca do produto -->
+        <p class="card-text text-center">
+          Marca: <a href="{% url 'store_products_by_brand' brand_name=product.brand.name %}" class="">{{ product.brand.name }}</a>
+        </p>
     </a>
         <div class="text-center mb-3">
           {% if product.promotion_product.active %}

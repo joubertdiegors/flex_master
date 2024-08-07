@@ -4,9 +4,6 @@
 
 {% block content %}
 <div class="container">
-  
-    
- 
   <div class="row">
     <!-- Sidebar -->
     <div class="col-xxl-3 col-xl-2 d-none d-lg-block col-md-2">
@@ -34,7 +31,7 @@
 
       <!-- Slick de Subcategorias -->
       {% if subcategories %}
-      <div id="subcategories_carousel" style="background-color: rgb(3, 90, 0)" class="row mb-4 mt-4">
+      <div id="subcategories_carousel" style="background-color: rgb(3, 90, 0); border-radius: 20px;" class="row mb-2 mt-2">
         <span id="title-categories">Navegue por categoria</span>
         <div class="col">
           <div class="subcategories-carousel">
@@ -85,7 +82,7 @@
     text-align: center;
     align-content: center;
     text-justify: distribute;
-    margin-bottom: 1em;
+    margin-bottom: 0.5em;
     border-radius: 6px;
     height: 40px;
   }
@@ -107,7 +104,6 @@
 
   .subcategories-carousel .card-text {
     font-size: 14px;
-    margin-top: 5px;
   }
 </style>
 {% endblock %}
